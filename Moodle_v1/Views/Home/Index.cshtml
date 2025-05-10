@@ -2,8 +2,36 @@
     ViewData["Title"] = "Home Page";
 }
 
+@using Microsoft.AspNetCore.Identity
+@using Moodle_v1.Areas.Identity.Data;
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
     <p>User Id : @ViewData["UserID"]</p>
 </div>
+
+@if(User.IsInRole("Admin"))
+{
+    <h1>Hi, Admin!</h1>
+}
+
+@if(User.IsInRole("Secretar"))
+{
+    <h1>Hi, Secretar!</h1>
+}
+
+@if (User.IsInRole("Student"))
+{
+    <h1>Hi, Student!</h1>
+}
+
+@if (User.IsInRole("Profesor"))
+{
+    <h1>Hi, Profesor!</h1>
+}
+
+

@@ -7,7 +7,9 @@ var connectionString = builder.Configuration.GetConnectionString("AuthDbContextC
 
 builder.Services.AddDbContext<AuthDbContext>(options => options.UseSqlServer(connectionString));
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<AuthDbContext>();
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<AuthDbContext>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -33,6 +35,91 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = 
+        scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    var roles = new[] { "Admin", "Secretar", "Profesor", "Student" };
+
+    foreach(var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+            await roleManager.CreateAsync(new IdentityRole(role));
+    }
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var userManager =
+        scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+    string email = "admin@admin.com";
+    string password = "abc123!!";
+
+    if (await userManager.FindByEmailAsync(email) == null)
+    {
+        var user = new ApplicationUser();
+        user.UserName = email;
+        user.Email = email;
+        user.FirstName = "Cosminel";
+        user.LastName = "Cosminov";
+
+        await userManager.CreateAsync(user, password);
+
+        await userManager.AddToRoleAsync(user, "Admin");
+    }
+
+    string emailProf = "prof@prof.com";
+    string passwordProf = "prof123!";
+
+    if (await userManager.FindByEmailAsync(emailProf) == null)
+    {
+        var prof = new ApplicationUser();
+        prof.UserName = emailProf;
+        prof.Email = emailProf;
+        prof.FirstName = "Dragan";
+        prof.LastName = "Tudose";
+
+        await userManager.CreateAsync(prof, passwordProf);
+
+        await userManager.AddToRoleAsync(prof, "Profesor");
+    }
+
+
+    string emailStudent = "student@student.com";
+    string passwordStudent = "student123!";
+
+    if (await userManager.FindByEmailAsync(emailStudent) == null)
+    {
+        var stud = new ApplicationUser();
+        stud.UserName = emailStudent;
+        stud.Email = emailStudent;
+        stud.FirstName = "Chija";
+        stud.LastName = "Claudia";
+
+        await userManager.CreateAsync(stud, password);
+
+        await userManager.AddToRoleAsync(stud, "Student");
+    }
+
+    string emailSec = "secretar@secretar.com";
+    string passwordSec = "sec123!";
+
+    if (await userManager.FindByEmailAsync(emailSec) == null)
+    {
+        var secretar = new ApplicationUser();
+        secretar.UserName = emailSec;
+        secretar.Email = emailSec;
+        secretar.FirstName = "Chef";
+        secretar.LastName = "Bucatar";
+
+        await userManager.CreateAsync(secretar, password);
+
+        await userManager.AddToRoleAsync(secretar, "Secretar");
+    }
+}
 
 app.MapRazorPages();
 
