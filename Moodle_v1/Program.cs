@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Moodle_v1.Areas.Identity.Data;
 using Moodle_v1.Data;
+using Moodle_v1.Models;
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("AuthDbContextConnection") ?? throw new InvalidOperationException("Connection string 'AuthDbContextConnection' not found.");
 
@@ -118,6 +119,53 @@ using (var scope = app.Services.CreateScope())
         await userManager.CreateAsync(secretar, password);
 
         await userManager.AddToRoleAsync(secretar, "Secretar");
+    }
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+    var context = services.GetRequiredService<AuthDbContext>();
+
+    var user = await userManager.FindByEmailAsync("student@student.com");
+    if (user != null && await userManager.IsInRoleAsync(user, "Student"))
+    {
+        if (!context.Students.Any(s => s.ApplicationUserId == user.Id))
+        {
+            var student = new Student
+            {
+                ApplicationUserId = user.Id,
+                CurrentYear = 1,
+                Domain = null
+            };
+            context.Students.Add(student);
+            await context.SaveChangesAsync();
+        }
+    }
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+    var context = services.GetRequiredService<AuthDbContext>();
+
+    var user = await userManager.FindByEmailAsync("prof@prof.com");
+    if (user != null && await userManager.IsInRoleAsync(user, "Profesor"))
+    {
+        if (!context.Professors.Any(s => s.ApplicationUserId == user.Id))
+        {
+            var prof = new Professor
+            {
+                ApplicationUserId = user.Id,
+                HireDate = DateTime.Now,
+                Rank = null
+            };
+
+            context.Professors.Add(prof);
+            await context.SaveChangesAsync();
+        }
     }
 }
 

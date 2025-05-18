@@ -1,0 +1,47 @@
+﻿@model AssignTeachersViewModel
+
+@{
+    ViewData["Title"] = "Assign Teachers to Course";
+}
+
+<h1>Assign Teachers to Course</h1>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <div>@error.ErrorMessage</div>
+        }
+    </div>
+}
+
+<form asp-action="AssignTeachers" method="post">
+    <div class="form-group">
+        <label asp-for="CourseId">Select Course:</label>
+        <select asp-for="CourseId" asp-items="@(new SelectList(Model.Courses, "Id", "Title"))" class="form-control"></select>
+        <span asp-validation-for="CourseId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="MainProfessorId">Select Main Professor:</label>
+        <select asp-for="MainProfessorId" asp-items="@(new SelectList(Model.Professors, "Id", "ApplicationUser.LastName"))" class="form-control">
+            <option value="">-- Select Main Professor --</option>
+        </select>
+        <span asp-validation-for="MainProfessorId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="AssistantProfessorId">Select Assistant Professor:</label>
+        <select asp-for="AssistantProfessorId" asp-items="@(new SelectList(Model.Professors, "Id", "ApplicationUser.LastName"))" class="form-control">
+            <option value="">-- Select Assistant Professor --</option>
+        </select>
+        <span asp-validation-for="AssistantProfessorId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Assign</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

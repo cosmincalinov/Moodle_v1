@@ -12,8 +12,8 @@ using Moodle_v1.Data;
 namespace Moodle_v1.Migrations
 {
     [DbContext(typeof(AuthDbContext))]
-    [Migration("20250502133322_Initial Create")]
-    partial class InitialCreate
+    [Migration("20250518124518_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -235,6 +235,140 @@ namespace Moodle_v1.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Moodle_v1.Models.Course", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AssistantId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MainId")
+                        .HasColumnType("int");
+
+                    b.Property<long>("NoCredits")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssistantId");
+
+                    b.HasIndex("MainId");
+
+                    b.ToTable("Courses");
+                });
+
+            modelBuilder.Entity("Moodle_v1.Models.CourseStudent", b =>
+                {
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("Grade")
+                        .HasColumnType("float");
+
+                    b.HasKey("StudentId", "CourseId");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("CourseStudent");
+                });
+
+            modelBuilder.Entity("Moodle_v1.Models.Domain", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Domain");
+                });
+
+            modelBuilder.Entity("Moodle_v1.Models.Professor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("HireDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("RankId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("RankId");
+
+                    b.ToTable("Professors");
+                });
+
+            modelBuilder.Entity("Moodle_v1.Models.Rank", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Rank");
+                });
+
+            modelBuilder.Entity("Moodle_v1.Models.Student", b =>
+                {
+                    b.Property<int>("NrMatricol")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NrMatricol"));
+
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("CurrentYear")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("DomainId")
+                        .HasColumnType("int");
+
+                    b.HasKey("NrMatricol");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("DomainId");
+
+                    b.ToTable("Students");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -284,6 +418,82 @@ namespace Moodle_v1.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Moodle_v1.Models.Course", b =>
+                {
+                    b.HasOne("Moodle_v1.Models.Professor", "Assistant")
+                        .WithMany()
+                        .HasForeignKey("AssistantId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Moodle_v1.Models.Professor", "Main")
+                        .WithMany()
+                        .HasForeignKey("MainId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Assistant");
+
+                    b.Navigation("Main");
+                });
+
+            modelBuilder.Entity("Moodle_v1.Models.CourseStudent", b =>
+                {
+                    b.HasOne("Moodle_v1.Models.Course", "Course")
+                        .WithMany("CoursesStudents")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Moodle_v1.Models.Student", "Student")
+                        .WithMany("CoursesStudents")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("Moodle_v1.Models.Professor", b =>
+                {
+                    b.HasOne("Moodle_v1.Areas.Identity.Data.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId");
+
+                    b.HasOne("Moodle_v1.Models.Rank", "Rank")
+                        .WithMany()
+                        .HasForeignKey("RankId");
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("Rank");
+                });
+
+            modelBuilder.Entity("Moodle_v1.Models.Student", b =>
+                {
+                    b.HasOne("Moodle_v1.Areas.Identity.Data.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId");
+
+                    b.HasOne("Moodle_v1.Models.Domain", "Domain")
+                        .WithMany()
+                        .HasForeignKey("DomainId");
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("Domain");
+                });
+
+            modelBuilder.Entity("Moodle_v1.Models.Course", b =>
+                {
+                    b.Navigation("CoursesStudents");
+                });
+
+            modelBuilder.Entity("Moodle_v1.Models.Student", b =>
+                {
+                    b.Navigation("CoursesStudents");
                 });
 #pragma warning restore 612, 618
         }

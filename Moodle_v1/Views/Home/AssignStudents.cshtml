@@ -1,0 +1,51 @@
+﻿@model AssignStudentsViewModel
+
+@{
+    ViewData["Title"] = "Assign Students to Course";
+}
+
+<h1>Assign Students to Course</h1>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <div>@error.ErrorMessage</div>
+        }
+    </div>
+}
+
+<form asp-action="AssignStudents" method="post">
+    <div class="form-group">
+        <label asp-for="CourseId">Select Course:</label>
+        <select asp-for="CourseId" asp-items="@(new SelectList(Model.Courses, "Id", "Title"))" class="form-control"></select>
+        <span asp-validation-for="CourseId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Select Students:</label>
+        <div>
+            @for (int i = 0; i < Model.Students.Count; i++)
+            {
+                <div class="form-check">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           name="SelectedStudentIds"
+                           value="@Model.Students[i].NrMatricol"
+                           id="student_@Model.Students[i].NrMatricol" />
+                    <label class="form-check-label" for="student_@Model.Students[i].NrMatricol">
+                        @Model.Students[i].ApplicationUser.FirstName @Model.Students[i].ApplicationUser.LastName
+                    </label>
+                </div>
+            }
+        </div>
+        <span asp-validation-for="SelectedStudentIds" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Assign</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

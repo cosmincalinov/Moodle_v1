@@ -1,4 +1,6 @@
-﻿@{
+﻿@model List<Course>
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -17,6 +19,10 @@
 @if(User.IsInRole("Admin"))
 {
     <h1>Hi, Admin!</h1>
+    <a asp-action="AssignStudents" class="btn btn-primary">Assign Students to Course</a>
+    <a asp-action="AssignTeachers" class="btn btn-primary">Assign Teachers to Course</a>
+    <a asp-action="CreateCourse" class="btn btn-primary">Create Course</a>
+    <a asp-action="AssignRole" class="btn btn-primary">Assign Role to User</a>
 }
 
 @if(User.IsInRole("Secretar"))
@@ -27,6 +33,22 @@
 @if (User.IsInRole("Student"))
 {
     <h1>Hi, Student!</h1>
+
+    <div>
+        <a asp-action="IndexSorted" asp-route-sortOrder="@ViewData["CurrentSort"]" class="btn btn-primary">
+            Sort by Name (@(ViewData["CurrentSort"] == "asc" ? "Ascending" : "Descending"))
+        </a>
+    </div>
+    
+    @foreach (var course in Model)
+    {
+        <section id="news" class="mybox">
+            <a asp-area="" asp-controller="Home" asp-action="CoursePage" asp-route-id="@course.Id">@course.Title</a>
+            <p>
+                Credits: @course.NoCredits
+            </p>
+        </section>
+    }
 }
 
 @if (User.IsInRole("Profesor"))
