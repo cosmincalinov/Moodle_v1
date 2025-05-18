@@ -1,0 +1,39 @@
+﻿@model Course
+
+@{
+    ViewData["Title"] = "Add Course";
+}
+
+<h1>Add Course</h1>
+
+<form asp-action="AddCourse" method="post">
+    <div class="form-group">
+        <label asp-for="Title"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="NoCredits"></label>
+        <input asp-for="NoCredits" class="form-control" />
+        <span asp-validation-for="NoCredits" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="MainId">Main Professor</label>
+        <select asp-for="MainId" asp-items="@(new SelectList(ViewBag.Professors, "Value", "Text"))" class="form-control">
+            <option value="">-- Select Main Professor --</option>
+        </select>
+        <span asp-validation-for="MainId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="AssistantId">Assistant Professor</label>
+        <select asp-for="AssistantId" asp-items="@(new SelectList(ViewBag.Professors, "Value", "Text"))" class="form-control">
+            <option value="">-- Select Assistant Professor --</option>
+        </select>
+        <span asp-validation-for="AssistantId" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Course</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

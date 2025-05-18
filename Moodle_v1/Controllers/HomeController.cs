@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Moodle_v1.Areas.Identity.Data;
 using Moodle_v1.Data;
@@ -14,17 +15,19 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly AuthDbContext _context;
     public List<Course> courses { get; set; }
     public List<Student> students { get; set; }
     public List<Professor> professors { get; set; }
     public Course course { get; set; }
 
-    public HomeController(ILogger<HomeController> logger,UserManager<ApplicationUser> userManager, AuthDbContext context)
+    public HomeController(ILogger<HomeController> logger,UserManager<ApplicationUser> userManager, AuthDbContext context, RoleManager<IdentityRole> roleManager)
     {
         _logger = logger;
         this._userManager = userManager;
         _context = context;
+        _roleManager = roleManager;
     }
 
     public IActionResult Index()
@@ -161,6 +164,125 @@ public class HomeController : Controller
         return View(model);
     }
 
+    [Authorize(Roles = "Admin")]
+    public IActionResult AddCourse()
+    {
+        ViewBag.Professors = _context.Professors
+            .Include(p => p.ApplicationUser)
+            .Select(a => new SelectListItem
+            {
+                Value = a.Id.ToString(),
+                Text = a.ApplicationUser.LastName
+            }).ToList();
+        return View();
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public IActionResult AddCourse(Course course)
+    {
+        if (ModelState.IsValid)
+        {
+            _context.Courses.Add(course);
+            _context.SaveChanges();
+            return RedirectToAction("Index");
+        }
+        ViewBag.Professors = _context.Professors
+            .Include(p => p.ApplicationUser)
+            .Select(a => new SelectListItem
+            {
+                Value = a.Id.ToString(),
+                Text = a.ApplicationUser.LastName
+            }).ToList();
+        return View(course);
+    }
+
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AssignRole()
+    {
+        var users = _userManager.Users.ToList();
+        var usersWithoutRoles = new List<SelectListItem>();
+
+        foreach (var user in users)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            if (!roles.Any())
+            {
+                usersWithoutRoles.Add(new SelectListItem
+                {
+                    Value = user.Id,
+                    Text = user.Email
+                });
+            }
+        }
+
+        ViewBag.Users = usersWithoutRoles;
+
+        ViewBag.Roles = _roleManager.Roles
+            .Select(r => new SelectListItem
+            {
+                Value = r.Name,
+                Text = r.Name
+            }).ToList();
+
+        return View();
+    }
+
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AssignRole(string userId, string role)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            ModelState.AddModelError("", "User not found.");
+        }
+        else
+        {
+            var userRoles = await _userManager.GetRolesAsync(user);
+            if (userRoles.Any())
+            {
+                ModelState.AddModelError("", "User already has a role assigned.");
+            }
+            else
+            {
+                await _userManager.AddToRoleAsync(user, role);
+
+                // Add to Student table if role is Student and not already present
+                if (role == "Student" && !_context.Students.Any(s => s.ApplicationUserId == user.Id))
+                {
+                    var student = new Student
+                    {
+                        ApplicationUserId = user.Id,
+                        CurrentYear = 1,
+                        Domain = null
+                    };
+                    _context.Students.Add(student);
+                    await _context.SaveChangesAsync();
+                }
+
+                return RedirectToAction("Index");
+            }
+        }
+
+        // Repopulate dropdowns if model state is invalid
+        ViewBag.Users = _userManager.Users
+            .Select(u => new SelectListItem
+            {
+                Value = u.Id,
+                Text = u.Email
+            }).ToList();
+
+        ViewBag.Roles = _roleManager.Roles
+            .Select(r => new SelectListItem
+            {
+                Value = r.Name,
+                Text = r.Name
+            }).ToList();
+
+        return View();
+    }
 
     public IActionResult Privacy()
     {
