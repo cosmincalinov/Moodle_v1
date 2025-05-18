@@ -111,7 +111,6 @@ public class HomeController : Controller
             return RedirectToAction("Index");
         }
 
-        // Repopulate dropdowns if model state is invalid
         model.Courses = await _context.Courses.ToListAsync();
         model.Students = await _context.Students.Include(s => s.ApplicationUser).ToListAsync();
         return View(model);
@@ -145,7 +144,6 @@ public class HomeController : Controller
             course.MainId = model.MainProfessorId;
             course.AssistantId = model.AssistantProfessorId;
 
-            // Optionally, update navigation properties if you need them in memory
             course.Main = model.MainProfessorId.HasValue
                 ? await _context.Professors.FindAsync(model.MainProfessorId.Value)
                 : null;
@@ -228,7 +226,6 @@ public class HomeController : Controller
         return View();
     }
 
-
     [HttpPost]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AssignRole(string userId, string role)
@@ -249,7 +246,6 @@ public class HomeController : Controller
             {
                 await _userManager.AddToRoleAsync(user, role);
 
-                // Add to Student table if role is Student and not already present
                 if (role == "Student" && !_context.Students.Any(s => s.ApplicationUserId == user.Id))
                 {
                     var student = new Student
@@ -262,11 +258,22 @@ public class HomeController : Controller
                     await _context.SaveChangesAsync();
                 }
 
+                if (role == "Profesor" && !_context.Professors.Any(p => p.ApplicationUserId == user.Id))
+                {
+                    var professor = new Professor
+                    {
+                        ApplicationUserId = user.Id,
+                        HireDate = DateTime.Now,
+                        Rank = null // Set as needed
+                    };
+                    _context.Professors.Add(professor);
+                    await _context.SaveChangesAsync();
+                }
+
                 return RedirectToAction("Index");
             }
         }
 
-        // Repopulate dropdowns if model state is invalid
         ViewBag.Users = _userManager.Users
             .Select(u => new SelectListItem
             {
