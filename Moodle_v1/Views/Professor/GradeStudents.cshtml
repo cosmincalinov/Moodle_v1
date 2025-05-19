@@ -1,0 +1,30 @@
+﻿@model GradeStudentViewModel
+
+<h2>Grade Students for @Model.CourseTitle</h2>
+<form asp-action="GradeStudents" method="post">
+    <input type="hidden" asp-for="CourseId" />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Grade</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Students.Count; i++)
+            {
+                <tr>
+                    <td>
+                        @Model.Students[i].StudentName
+                        <input type="hidden" asp-for="Students[@i].StudentId" />
+                    </td>
+                    <td>
+                        <input asp-for="Students[@i].Grade" class="form-control" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-primary">Save Grades</button>
+</form>
+

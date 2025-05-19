@@ -1,4 +1,31 @@
-﻿@model Moodle_v1.Models.Course
+﻿@model Course
 
-<h1>@Model.Title</h1>
+@using Microsoft.AspNetCore.Identity
+@using Moodle_v1.Areas.Identity.Data
+
+@inject UserManager<ApplicationUser> UserManager
+
+<h2>@Model.Title</h2>
 <p>Credits: @Model.NoCredits</p>
+
+@if (User.IsInRole("Student"))
+{
+    <p>
+        <strong>Your Grade:</strong>
+        @if (ViewBag.Grade != null)
+        {
+            @ViewBag.Grade
+        }
+        else
+        {
+            <span>Not graded yet</span>
+        }
+    </p>
+}
+
+@if (User.IsInRole("Profesor") && Model.Main != null && Model.Main.ApplicationUserId == UserManager.GetUserId(User))
+{
+    <a asp-controller="Professor" asp-action="GradeStudents" asp-route-courseId="@Model.Id" class="btn btn-success">
+        Grade Students
+    </a>
+}

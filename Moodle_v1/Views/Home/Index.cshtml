@@ -54,6 +54,24 @@
 @if (User.IsInRole("Profesor"))
 {
     <h1>Hi, Profesor!</h1>
+
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var course in Model)
+        {
+            <section id="news" class="mybox">
+                <a asp-area="" asp-controller="Home" asp-action="CoursePage" asp-route-id="@course.Id">@course.Title</a>
+                <p>
+                    Credits: @course.NoCredits
+                </p>
+            </section>
+        }
+    }
+    else
+    {
+        <p>You are not assigned to any courses.</p>
+    }
 }
+
 
 

@@ -33,10 +33,31 @@ public class HomeController : Controller
     public IActionResult Index()
     {
         ViewData["UserID"] = _userManager.GetUserId(this.User);
-        if(User.IsInRole("Student"))
+
+        if (User.IsInRole("Student"))
         {
             courses = _context.Courses.ToList();
         }
+        else if (User.IsInRole("Profesor"))
+        {
+            var userId = _userManager.GetUserId(this.User);
+            var professor = _context.Professors.FirstOrDefault(p => p.ApplicationUserId == userId);
+            if (professor != null)
+            {
+                courses = _context.Courses
+                    .Where(c => c.MainId == professor.Id || c.AssistantId == professor.Id)
+                    .ToList();
+            }
+            else
+            {
+                courses = new List<Course>();
+            }
+        }
+        else
+        {
+            courses = _context.Courses.ToList();
+        }
+
         return View(courses);
     }
 
@@ -62,19 +83,36 @@ public class HomeController : Controller
             ? courses.OrderByDescending(c => c.Title)
             : courses.OrderBy(c => c.Title);
 
-        ViewData["CurrentSort"] = sortOrder == "desc" ? "asc" : "desc"; // Toggle sort order
+        ViewData["CurrentSort"] = sortOrder == "desc" ? "asc" : "desc";
 
         return View("Index", courses.ToList());
     }
 
     public IActionResult CoursePage(int id)
     {
-        course = _context.Courses.FirstOrDefault(c => c.Id == id);
+        course = _context.Courses
+            .Include(c => c.Main)
+            .FirstOrDefault(c => c.Id == id);
+
         if (course == null)
         {
             return NotFound();
         }
-        return View("CoursePage",course);
+
+        if (User.IsInRole("Student"))
+        {
+            var userId = _userManager.GetUserId(User);
+            var student = _context.Students.FirstOrDefault(s => s.ApplicationUserId == userId);
+            if (student != null)
+            {
+                var courseStudent = _context.CourseStudents
+                    .FirstOrDefault(cs => cs.CourseId == id && cs.StudentId == student.NrMatricol);
+
+                ViewBag.Grade = courseStudent?.Grade;
+            }
+        }
+
+        return View("CoursePage", course);
     }
 
     [Authorize(Roles = "Admin")]
@@ -264,7 +302,7 @@ public class HomeController : Controller
                     {
                         ApplicationUserId = user.Id,
                         HireDate = DateTime.Now,
-                        Rank = null // Set as needed
+                        Rank = null
                     };
                     _context.Professors.Add(professor);
                     await _context.SaveChangesAsync();
