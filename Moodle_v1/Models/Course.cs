@@ -11,7 +11,7 @@ namespace Moodle_v1.Models
         public Professor? Main { get; set; }
         public int? AssistantId { get; set; }
         public Professor? Assistant { get; set; }
-
+        public List<Announcement> Announcements { get; set; }
         public List<CourseStudent>? CoursesStudents { get; set; } = [];
     }
 }

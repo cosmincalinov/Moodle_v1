@@ -1,0 +1,16 @@
+﻿@{
+    ViewData["Title"] = "Create Announcement";
+}
+<h2>Create Announcement</h2>
+<form asp-action="CreateAnnouncement" method="post">
+    <input type="hidden" name="courseId" value="@ViewBag.CourseId" />
+    <div class="form-group">
+        <label>Title</label>
+        <input name="title" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Body</label>
+        <textarea name="body" class="form-control" rows="5" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Post Announcement</button>
+</form>

@@ -12,6 +12,8 @@ public class AuthDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Student> Students { get; set; }
     public DbSet<Professor> Professors { get; set; }
     public DbSet<CourseStudent> CourseStudents { get; set; }
+    public DbSet<Announcement> Announcements { get; set; }
+
 
     public AuthDbContext(DbContextOptions<AuthDbContext> options)
         : base(options)

@@ -85,6 +85,52 @@ namespace Moodle_v1.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        [Authorize(Roles = "Profesor")]
+        public async Task<IActionResult> CreateAnnouncement(int courseId)
+        {
+            var userId = _userManager.GetUserId(User);
+            var professor = await _context.Professors.FirstOrDefaultAsync(p => p.ApplicationUserId == userId);
+
+            // Check if professor is main or assistant for this course
+            var course = await _context.Courses.FirstOrDefaultAsync(c =>
+                c.Id == courseId && (c.MainId == professor.Id || c.AssistantId == professor.Id));
+            if (course == null)
+                return Forbid();
+
+            ViewBag.CourseId = courseId;
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Profesor")]
+        public async Task<IActionResult> CreateAnnouncement(int courseId, string title, string body)
+        {
+            var userId = _userManager.GetUserId(User);
+            var professor = await _context.Professors
+                .Include(p => p.ApplicationUser)
+                .FirstOrDefaultAsync(p => p.ApplicationUserId == userId);
+
+            var course = await _context.Courses.FirstOrDefaultAsync(c =>
+                c.Id == courseId && (c.MainId == professor.Id || c.AssistantId == professor.Id));
+            if (course == null)
+                return Forbid();
+
+            var announcement = new Announcement
+            {
+                CourseId = courseId,
+                ProfessorId = professor.Id,
+                Title = title,
+                Body = body,
+                PostedAt = DateTime.Now
+            };
+
+            _context.Announcements.Add(announcement);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("CoursePage", "Home", new { id = courseId });
+        }
+
+
 
     }
 }

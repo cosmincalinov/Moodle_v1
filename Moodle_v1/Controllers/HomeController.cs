@@ -90,8 +90,12 @@ public class HomeController : Controller
 
     public IActionResult CoursePage(int id)
     {
-        course = _context.Courses
+        var course = _context.Courses
             .Include(c => c.Main)
+            .Include(c => c.Assistant)
+            .Include(c => c.Announcements)
+                .ThenInclude(a => a.Professor)
+                    .ThenInclude(p => p.ApplicationUser)
             .FirstOrDefault(c => c.Id == id);
 
         if (course == null)
@@ -114,6 +118,7 @@ public class HomeController : Controller
 
         return View("CoursePage", course);
     }
+
 
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AssignStudents()

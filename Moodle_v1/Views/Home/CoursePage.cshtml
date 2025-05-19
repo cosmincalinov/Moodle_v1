@@ -8,6 +8,26 @@
 <h2>@Model.Title</h2>
 <p>Credits: @Model.NoCredits</p>
 
+@if (Model.Announcements != null && Model.Announcements.Any())
+{
+    foreach (var announcement in Model.Announcements.OrderByDescending(a => a.PostedAt))
+    {
+        <div>
+            <h4>@announcement.Title</h4>
+            <p>
+                By @announcement.Professor.ApplicationUser.FirstName @announcement.Professor.ApplicationUser.LastName
+                on @announcement.PostedAt
+            </p>
+            <p>@announcement.Body</p>
+        </div>
+    }
+}
+else
+{
+    <p>No announcements for this course.</p>
+}
+
+
 @if (User.IsInRole("Student"))
 {
     <p>
@@ -21,6 +41,15 @@
             <span>Not graded yet</span>
         }
     </p>
+}
+
+@if (User.IsInRole("Profesor") &&
+   ((Model.Main != null && Model.Main.ApplicationUserId == UserManager.GetUserId(User)) ||
+    (Model.Assistant != null && Model.Assistant.ApplicationUserId == UserManager.GetUserId(User))))
+{
+    <a asp-controller="Professor" asp-action="CreateAnnouncement" asp-route-courseId="@Model.Id" class="btn btn-warning">
+        Create Announcement
+    </a>
 }
 
 @if (User.IsInRole("Profesor") && Model.Main != null && Model.Main.ApplicationUserId == UserManager.GetUserId(User))
