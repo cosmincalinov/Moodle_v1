@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Moodle_v1.Areas.Identity.Data;
 using Moodle_v1.Data;
 using Moodle_v1.Models;
+using Rotativa.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("AuthDbContextConnection") ?? throw new InvalidOperationException("Connection string 'AuthDbContextConnection' not found.");
 
@@ -12,7 +13,6 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AuthDbContext>();
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.Configure<IdentityOptions>(options =>
@@ -22,7 +22,6 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");

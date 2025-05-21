@@ -185,6 +185,52 @@ namespace Moodle_v1.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ChatMessages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SenderId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ReceiverId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SentAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChatMessages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ChatMessages_AspNetUsers_ReceiverId",
+                        column: x => x.ReceiverId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ChatMessages_AspNetUsers_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Secretaries",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Secretaries", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Secretaries_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Students",
                 columns: table => new
                 {
@@ -263,7 +309,36 @@ namespace Moodle_v1.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CourseStudent",
+                name: "Announcements",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CourseId = table.Column<int>(type: "int", nullable: false),
+                    ProfessorId = table.Column<int>(type: "int", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Body = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PostedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Announcements", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Announcements_Courses_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Courses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Announcements_Professors_ProfessorId",
+                        column: x => x.ProfessorId,
+                        principalTable: "Professors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CourseStudents",
                 columns: table => new
                 {
                     StudentId = table.Column<int>(type: "int", nullable: false),
@@ -272,20 +347,30 @@ namespace Moodle_v1.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CourseStudent", x => new { x.StudentId, x.CourseId });
+                    table.PrimaryKey("PK_CourseStudents", x => new { x.StudentId, x.CourseId });
                     table.ForeignKey(
-                        name: "FK_CourseStudent_Courses_CourseId",
+                        name: "FK_CourseStudents_Courses_CourseId",
                         column: x => x.CourseId,
                         principalTable: "Courses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CourseStudent_Students_StudentId",
+                        name: "FK_CourseStudents_Students_StudentId",
                         column: x => x.StudentId,
                         principalTable: "Students",
                         principalColumn: "NrMatricol",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Announcements_CourseId",
+                table: "Announcements",
+                column: "CourseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Announcements_ProfessorId",
+                table: "Announcements",
+                column: "ProfessorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -327,6 +412,16 @@ namespace Moodle_v1.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ChatMessages_ReceiverId",
+                table: "ChatMessages",
+                column: "ReceiverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChatMessages_SenderId",
+                table: "ChatMessages",
+                column: "SenderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Courses_AssistantId",
                 table: "Courses",
                 column: "AssistantId");
@@ -337,8 +432,8 @@ namespace Moodle_v1.Migrations
                 column: "MainId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CourseStudent_CourseId",
-                table: "CourseStudent",
+                name: "IX_CourseStudents_CourseId",
+                table: "CourseStudents",
                 column: "CourseId");
 
             migrationBuilder.CreateIndex(
@@ -350,6 +445,11 @@ namespace Moodle_v1.Migrations
                 name: "IX_Professors_RankId",
                 table: "Professors",
                 column: "RankId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Secretaries_ApplicationUserId",
+                table: "Secretaries",
+                column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Students_ApplicationUserId",
@@ -366,6 +466,9 @@ namespace Moodle_v1.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Announcements");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
             migrationBuilder.DropTable(
@@ -381,7 +484,13 @@ namespace Moodle_v1.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "CourseStudent");
+                name: "ChatMessages");
+
+            migrationBuilder.DropTable(
+                name: "CourseStudents");
+
+            migrationBuilder.DropTable(
+                name: "Secretaries");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

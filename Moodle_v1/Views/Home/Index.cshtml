@@ -29,6 +29,7 @@
 {
     <h1>Hi, Secretar!</h1>
     <a asp-controller="Secretary" asp-action="StudentGrades" class="btn btn-primary">View All Student Grades</a>
+    <a asp-controller="Chat" asp-action="Index" class="btn btn-info">Open Chat</a>
 
 }
 
@@ -78,6 +79,8 @@
 @if (User.IsInRole("Profesor"))
 {
     <h1>Hi, Profesor!</h1>
+
+    <a asp-controller="Chat" asp-action="Index" class="btn btn-info">Open Chat</a>
 
     @if (Model != null && Model.Any())
     {

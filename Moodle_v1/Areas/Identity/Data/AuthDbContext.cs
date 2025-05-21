@@ -14,6 +14,7 @@ public class AuthDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<CourseStudent> CourseStudents { get; set; }
     public DbSet<Announcement> Announcements { get; set; }
     public DbSet<Secretary> Secretaries { get; set; }
+    public DbSet<ChatMessage> ChatMessages { get; set; }
 
     public AuthDbContext(DbContextOptions<AuthDbContext> options)
         : base(options)
@@ -48,38 +49,9 @@ public class AuthDbContext : IdentityDbContext<ApplicationUser>
             .WithMany()
             .HasForeignKey(c => c.AssistantId)
             .OnDelete(DeleteBehavior.Restrict);
-
-    //builder.Entity<Course>()
-    //.HasOne(c => c.Main)
-    //.WithMany()
-    //.HasForeignKey("MainProfessorId")
-    //.OnDelete(DeleteBehavior.Restrict);
-
-    //builder.Entity<Course>()
-    //    .HasOne(c => c.Assistant)
-    //    .WithMany()
-    //    .HasForeignKey("AssistantProfessorId")
-    //    .OnDelete(DeleteBehavior.SetNull);
 }
 
 
 }
 
-
-    //protected override void OnModelCreating(ModelBuilder builder)
-    //{
-    //    base.OnModelCreating(builder);
-
-    //    builder.Entity<Student>()
-    //        .HasOne(s => s.ApplicationUser)
-    //        .WithOne()
-    //        .HasForeignKey<Student>(s => s.ApplicationUserId);
-    //}
-    //protected override void OnModelCreating(ModelBuilder builder)
-    //{
-    //    base.OnModelCreating(builder);
-    //    // Customize the ASP.NET Identity model and override the defaults if needed.
-    //    // For example, you can rename the ASP.NET Identity table names and more.
-    //    // Add your customizations after calling base.OnModelCreating(builder);
-    //}
 

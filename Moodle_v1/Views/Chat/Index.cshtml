@@ -1,0 +1,38 @@
+﻿@model List<ChatMessage>
+@using Microsoft.AspNetCore.Identity
+@using Moodle_v1.Areas.Identity.Data
+@inject UserManager<ApplicationUser> UserManager
+
+<h2>Chat</h2>
+
+<form method="get">
+    <label>Select user to chat with:</label>
+    <select name="withUserId" onchange="this.form.submit()">
+        <option value="">-- Select --</option>
+        @foreach (var user in (IEnumerable<ApplicationUser>)ViewBag.Users)
+        {
+            <option value="@user.Id" selected="@(ViewBag.WithUserId == user.Id ? "selected" : null)">
+                @user.FirstName @user.LastName (@user.Email)
+            </option>
+        }
+    </select>
+</form>
+
+@if (ViewBag.WithUserId != null)
+{
+    <div style="border:1px solid #ccc; padding:10px; margin-top:20px; max-width:500px;">
+        @foreach (var msg in Model)
+        {
+            <div style="margin-bottom:10px;">
+                <strong>@msg.Sender.FirstName @msg.Sender.LastName:</strong>
+                <span>@msg.Message</span>
+                <span style="color:gray; font-size:smaller;">(@msg.SentAt.ToString("g"))</span>
+            </div>
+        }
+        <form asp-action="Send" method="post" style="margin-top:10px;">
+            <input type="hidden" name="withUserId" value="@ViewBag.WithUserId" />
+            <input type="text" name="message" class="form-control" placeholder="Type your message..." required />
+            <button type="submit" class="btn btn-primary" style="margin-top:5px;">Send</button>
+        </form>
+    </div>
+}

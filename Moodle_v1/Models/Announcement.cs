@@ -7,7 +7,7 @@ namespace Moodle_v1.Models
         [Key]
         public int Id { get; set; }
         public int CourseId { get; set; }
-        public int ProfessorId { get; set; } // Store the Professor's ID
+        public int ProfessorId { get; set; }
         public string Title { get; set; }
         public string Body { get; set; }
         public DateTime PostedAt { get; set; }
