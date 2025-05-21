@@ -38,14 +38,22 @@ public class HomeController : Controller
         {
             var userId = _userManager.GetUserId(this.User);
 
+            // Load unread alerts (e.g., added to course, grade updated)
+            var alerts = _context.Alerts
+                .Where(a => a.StudentUserId == userId && !a.IsRead)
+                .OrderByDescending(a => a.CreatedAt)
+                .ToList();
+            ViewBag.Alerts = alerts;
+
+            // Load unread announcement notifications
             var notifications = _context.Notifications
                 .Include(n => n.Announcement)
                 .Where(n => n.StudentUserId == userId && !n.IsRead)
                 .OrderByDescending(n => n.CreatedAt)
                 .ToList();
-
             ViewBag.Notifications = notifications;
 
+            // Load courses for the student
             courses = _context.Courses
                 .Include(c => c.Main).ThenInclude(p => p.ApplicationUser)
                 .Include(c => c.Assistant).ThenInclude(p => p.ApplicationUser)
@@ -191,6 +199,20 @@ public class HomeController : Controller
                         StudentId = studentId,
                         CourseId = model.CourseId
                     });
+
+                    var student = await _context.Students.FindAsync(studentId);
+                    var course = await _context.Courses.FindAsync(model.CourseId);
+                    if (student != null && course != null)
+                    {
+                        var alert = new Alert
+                        {
+                            StudentUserId = student.ApplicationUserId,
+                            Message = $"You have been added to the course '{course.Title}'.",
+                            CreatedAt = DateTime.Now,
+                            IsRead = false
+                        };
+                        _context.Alerts.Add(alert);
+                    }
                 }
             }
             await _context.SaveChangesAsync();
@@ -384,6 +406,60 @@ public class HomeController : Controller
             }).ToList();
 
         return View();
+    }
+
+    [Authorize(Roles = "Admin")]
+    public IActionResult EditCourse(int id)
+    {
+        var course = _context.Courses
+            .Include(c => c.Main)
+            .Include(c => c.Assistant)
+            .FirstOrDefault(c => c.Id == id);
+
+        if (course == null)
+            return NotFound();
+
+        ViewBag.Professors = _context.Professors
+            .Include(p => p.ApplicationUser)
+            .Select(a => new SelectListItem
+            {
+                Value = a.Id.ToString(),
+                Text = a.ApplicationUser.LastName
+            }).ToList();
+
+        return View(course);
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public IActionResult EditCourse(Course course)
+    {
+        if (ModelState.IsValid)
+        {
+            _context.Courses.Update(course);
+            _context.SaveChanges();
+            return RedirectToAction("Index");
+        }
+        ViewBag.Professors = _context.Professors
+            .Include(p => p.ApplicationUser)
+            .Select(a => new SelectListItem
+            {
+                Value = a.Id.ToString(),
+                Text = a.ApplicationUser.LastName
+            }).ToList();
+        return View(course);
+    }
+
+    [Authorize(Roles = "Admin")]
+    public IActionResult DeleteCourse(int id)
+    {
+        var course = _context.Courses.Find(id);
+        if (course != null)
+        {
+            _context.Courses.Remove(course);
+            _context.SaveChanges();
+        }
+        return RedirectToAction("Index");
     }
 
     public IActionResult Privacy()

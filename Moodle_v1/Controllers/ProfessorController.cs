@@ -77,7 +77,25 @@ namespace Moodle_v1.Controllers
 
                 if (courseStudent != null)
                 {
+                    bool gradeChanged = courseStudent.Grade != entry.Grade;
                     courseStudent.Grade = entry.Grade;
+
+                    if (gradeChanged)
+                    {
+                        var student = await _context.Students.FindAsync(entry.StudentId);
+                        var courseEntity = await _context.Courses.FindAsync(model.CourseId);
+                        if (student != null && courseEntity != null)
+                        {
+                            var alert = new Alert
+                            {
+                                StudentUserId = student.ApplicationUserId,
+                                Message = $"Your grade for '{courseEntity.Title}' has been updated to {entry.Grade}.",
+                                CreatedAt = DateTime.Now,
+                                IsRead = false
+                            };
+                            _context.Alerts.Add(alert);
+                        }
+                    }
                 }
             }
 
@@ -91,7 +109,6 @@ namespace Moodle_v1.Controllers
             var userId = _userManager.GetUserId(User);
             var professor = await _context.Professors.FirstOrDefaultAsync(p => p.ApplicationUserId == userId);
 
-            // Check if professor is main or assistant for this course
             var course = await _context.Courses.FirstOrDefaultAsync(c =>
                 c.Id == courseId && (c.MainId == professor.Id || c.AssistantId == professor.Id));
             if (course == null)
