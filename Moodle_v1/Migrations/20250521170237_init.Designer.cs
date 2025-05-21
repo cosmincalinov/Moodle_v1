@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Moodle_v1.Data;
 
@@ -11,9 +12,11 @@ using Moodle_v1.Data;
 namespace Moodle_v1.Migrations
 {
     [DbContext(typeof(AuthDbContext))]
-    partial class AuthDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250521170237_init")]
+    partial class init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,34 +55,6 @@ namespace Moodle_v1.Migrations
                     b.HasIndex("SenderId");
 
                     b.ToTable("ChatMessages");
-                });
-
-            modelBuilder.Entity("ChatNotification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ChatMessageId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChatMessageId");
-
-                    b.ToTable("ChatNotifications");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -405,11 +380,33 @@ namespace Moodle_v1.Migrations
                     b.Property<DateTime>("HireDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("RankId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
 
+                    b.HasIndex("RankId");
+
                     b.ToTable("Professors");
+                });
+
+            modelBuilder.Entity("Moodle_v1.Models.Rank", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Rank");
                 });
 
             modelBuilder.Entity("Moodle_v1.Models.Student", b =>
@@ -436,34 +433,6 @@ namespace Moodle_v1.Migrations
                     b.HasIndex("DomainId");
 
                     b.ToTable("Students");
-                });
-
-            modelBuilder.Entity("Notification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AnnouncementId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("StudentUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AnnouncementId");
-
-                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Secretary", b =>
@@ -501,17 +470,6 @@ namespace Moodle_v1.Migrations
                     b.Navigation("Receiver");
 
                     b.Navigation("Sender");
-                });
-
-            modelBuilder.Entity("ChatNotification", b =>
-                {
-                    b.HasOne("ChatMessage", "ChatMessage")
-                        .WithMany()
-                        .HasForeignKey("ChatMessageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChatMessage");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -624,7 +582,13 @@ namespace Moodle_v1.Migrations
                         .WithMany()
                         .HasForeignKey("ApplicationUserId");
 
+                    b.HasOne("Moodle_v1.Models.Rank", "Rank")
+                        .WithMany()
+                        .HasForeignKey("RankId");
+
                     b.Navigation("ApplicationUser");
+
+                    b.Navigation("Rank");
                 });
 
             modelBuilder.Entity("Moodle_v1.Models.Student", b =>
@@ -640,17 +604,6 @@ namespace Moodle_v1.Migrations
                     b.Navigation("ApplicationUser");
 
                     b.Navigation("Domain");
-                });
-
-            modelBuilder.Entity("Notification", b =>
-                {
-                    b.HasOne("Moodle_v1.Models.Announcement", "Announcement")
-                        .WithMany()
-                        .HasForeignKey("AnnouncementId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Announcement");
                 });
 
             modelBuilder.Entity("Secretary", b =>

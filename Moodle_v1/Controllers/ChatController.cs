@@ -50,6 +50,7 @@ public class ChatController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = "Profesor,Secretar")]
     public async Task<IActionResult> Send(string withUserId, string message)
     {
         var currentUserId = _userManager.GetUserId(User);
@@ -63,6 +64,16 @@ public class ChatController : Controller
                 SentAt = DateTime.Now
             };
             _context.ChatMessages.Add(chatMessage);
+            await _context.SaveChangesAsync();
+
+            var chatNotification = new ChatNotification
+            {
+                UserId = withUserId,
+                ChatMessageId = chatMessage.Id,
+                IsRead = false,
+                CreatedAt = DateTime.Now
+            };
+            _context.ChatNotifications.Add(chatNotification);
             await _context.SaveChangesAsync();
         }
         return RedirectToAction("Index", new { withUserId });

@@ -36,30 +36,64 @@ public class HomeController : Controller
 
         if (User.IsInRole("Student"))
         {
+            var userId = _userManager.GetUserId(this.User);
+
+            var notifications = _context.Notifications
+                .Include(n => n.Announcement)
+                .Where(n => n.StudentUserId == userId && !n.IsRead)
+                .OrderByDescending(n => n.CreatedAt)
+                .ToList();
+
+            ViewBag.Notifications = notifications;
+
             courses = _context.Courses
                 .Include(c => c.Main).ThenInclude(p => p.ApplicationUser)
                 .Include(c => c.Assistant).ThenInclude(p => p.ApplicationUser)
                 .ToList();
-
         }
-        else if (User.IsInRole("Profesor"))
+        else if (User.IsInRole("Profesor") || User.IsInRole("Secretar"))
         {
             var userId = _userManager.GetUserId(this.User);
-            var professor = _context.Professors.FirstOrDefault(p => p.ApplicationUserId == userId);
-            if (professor != null)
+
+            var chatNotifications = _context.ChatNotifications
+                .Include(n => n.ChatMessage)
+                .ThenInclude(m => m.Sender)
+                .Where(n => n.UserId == userId && !n.IsRead)
+                .OrderByDescending(n => n.CreatedAt)
+                .ToList();
+
+            ViewBag.ChatNotifications = chatNotifications;
+
+            if (User.IsInRole("Profesor"))
+            {
+                var professor = _context.Professors.FirstOrDefault(p => p.ApplicationUserId == userId);
+                if (professor != null)
+                {
+                    courses = _context.Courses
+                        .Where(c => c.MainId == professor.Id || c.AssistantId == professor.Id)
+                        .Include(c => c.Main).ThenInclude(p => p.ApplicationUser)
+                        .Include(c => c.Assistant).ThenInclude(p => p.ApplicationUser)
+                        .ToList();
+                }
+                else
+                {
+                    courses = new List<Course>();
+                }
+            }
+            else // Secretar
             {
                 courses = _context.Courses
-                    .Where(c => c.MainId == professor.Id || c.AssistantId == professor.Id)
+                    .Include(c => c.Main).ThenInclude(p => p.ApplicationUser)
+                    .Include(c => c.Assistant).ThenInclude(p => p.ApplicationUser)
                     .ToList();
-            }
-            else
-            {
-                courses = new List<Course>();
             }
         }
         else
         {
-            courses = _context.Courses.ToList();
+            courses = _context.Courses
+                .Include(c => c.Main).ThenInclude(p => p.ApplicationUser)
+                .Include(c => c.Assistant).ThenInclude(p => p.ApplicationUser)
+                .ToList();
         }
 
         return View(courses);
@@ -315,8 +349,7 @@ public class HomeController : Controller
                     var professor = new Professor
                     {
                         ApplicationUserId = user.Id,
-                        HireDate = DateTime.Now,
-                        Rank = null
+                        HireDate = DateTime.Now
                     };
                     _context.Professors.Add(professor);
                     await _context.SaveChangesAsync();

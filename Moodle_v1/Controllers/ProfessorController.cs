@@ -110,8 +110,10 @@ namespace Moodle_v1.Controllers
                 .Include(p => p.ApplicationUser)
                 .FirstOrDefaultAsync(p => p.ApplicationUserId == userId);
 
-            var course = await _context.Courses.FirstOrDefaultAsync(c =>
-                c.Id == courseId && (c.MainId == professor.Id || c.AssistantId == professor.Id));
+            var course = await _context.Courses
+                .Include(c => c.CoursesStudents)
+                    .ThenInclude(cs => cs.Student)
+                .FirstOrDefaultAsync(c => c.Id == courseId && (c.MainId == professor.Id || c.AssistantId == professor.Id));
             if (course == null)
                 return Forbid();
 
@@ -125,6 +127,19 @@ namespace Moodle_v1.Controllers
             };
 
             _context.Announcements.Add(announcement);
+            await _context.SaveChangesAsync();
+
+            foreach (var cs in course.CoursesStudents)
+            {
+                var notification = new Notification
+                {
+                    StudentUserId = cs.Student.ApplicationUserId,
+                    AnnouncementId = announcement.Id,
+                    CreatedAt = DateTime.Now,
+                    IsRead = false
+                };
+                _context.Notifications.Add(notification);
+            }
             await _context.SaveChangesAsync();
 
             return RedirectToAction("CoursePage", "Home", new { id = courseId });

@@ -16,6 +16,23 @@
     <p>User Id : @ViewData["UserID"]</p>
 </div>
 
+@if ((User.IsInRole("Profesor") || User.IsInRole("Secretar")) && ViewBag.ChatNotifications != null && ((List<ChatNotification>)ViewBag.ChatNotifications).Any())
+{
+    <div class="alert alert-info">
+        <strong>New Messages:</strong>
+        <ul>
+            @foreach (var notification in (List<ChatNotification>)ViewBag.ChatNotifications)
+            {
+                <li>
+                    From: @notification.ChatMessage.Sender.FirstName @notification.ChatMessage.Sender.LastName<br />
+                    "@notification.ChatMessage.Message"
+                    <span style="color:gray; font-size:smaller;">(@notification.CreatedAt.ToString("g"))</span>
+                </li>
+            }
+        </ul>
+    </div>
+}
+
 @if(User.IsInRole("Admin"))
 {
     <h1>Hi, Admin!</h1>
@@ -36,6 +53,23 @@
 @if (User.IsInRole("Student"))
 {
     <h1>Hi, Student!</h1>
+
+    @if (ViewBag.Notifications != null && ((List<Notification>)ViewBag.Notifications).Any())
+    {
+        <div class="alert alert-info">
+            <strong>New Announcements:</strong>
+            <ul>
+                @foreach (var notification in (List<Notification>)ViewBag.Notifications)
+                {
+                    <li>
+                        <strong>@notification.Announcement.Title</strong> - @notification.Announcement.PostedAt.ToString("g")
+                        <br />
+                        @notification.Announcement.Body
+                    </li>
+                }
+            </ul>
+        </div>
+    }
 
     <div>
         <a asp-action="IndexSorted" asp-route-sortOrder="@ViewData["CurrentSort"]" class="btn btn-primary">

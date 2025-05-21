@@ -11,6 +11,5 @@ namespace Moodle_v1.Models
         public string? ApplicationUserId { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }
         public DateTime HireDate { get; set; }
-        public Rank? Rank { get; set; }
     }
 }

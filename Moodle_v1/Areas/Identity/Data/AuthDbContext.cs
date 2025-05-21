@@ -15,6 +15,8 @@ public class AuthDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Announcement> Announcements { get; set; }
     public DbSet<Secretary> Secretaries { get; set; }
     public DbSet<ChatMessage> ChatMessages { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
+    public DbSet<ChatNotification> ChatNotifications { get; set; }
 
     public AuthDbContext(DbContextOptions<AuthDbContext> options)
         : base(options)
@@ -48,6 +50,18 @@ public class AuthDbContext : IdentityDbContext<ApplicationUser>
             .HasOne(c => c.Assistant)
             .WithMany()
             .HasForeignKey(c => c.AssistantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<ChatMessage>()
+        .HasOne(m => m.Sender)
+        .WithMany()
+        .HasForeignKey(m => m.SenderId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<ChatMessage>()
+            .HasOne(m => m.Receiver)
+            .WithMany()
+            .HasForeignKey(m => m.ReceiverId)
             .OnDelete(DeleteBehavior.Restrict);
 }
 

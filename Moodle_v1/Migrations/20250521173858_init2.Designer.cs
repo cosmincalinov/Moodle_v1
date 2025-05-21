@@ -12,8 +12,8 @@ using Moodle_v1.Data;
 namespace Moodle_v1.Migrations
 {
     [DbContext(typeof(AuthDbContext))]
-    [Migration("20250521165201_init")]
-    partial class init
+    [Migration("20250521173858_init2")]
+    partial class init2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -380,33 +380,11 @@ namespace Moodle_v1.Migrations
                     b.Property<DateTime>("HireDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("RankId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.HasIndex("RankId");
-
                     b.ToTable("Professors");
-                });
-
-            modelBuilder.Entity("Moodle_v1.Models.Rank", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Rank");
                 });
 
             modelBuilder.Entity("Moodle_v1.Models.Student", b =>
@@ -435,6 +413,34 @@ namespace Moodle_v1.Migrations
                     b.ToTable("Students");
                 });
 
+            modelBuilder.Entity("Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AnnouncementId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("StudentUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnnouncementId");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("Secretary", b =>
                 {
                     b.Property<int>("Id")
@@ -458,13 +464,13 @@ namespace Moodle_v1.Migrations
                     b.HasOne("Moodle_v1.Areas.Identity.Data.ApplicationUser", "Receiver")
                         .WithMany()
                         .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Moodle_v1.Areas.Identity.Data.ApplicationUser", "Sender")
                         .WithMany()
                         .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Receiver");
@@ -582,13 +588,7 @@ namespace Moodle_v1.Migrations
                         .WithMany()
                         .HasForeignKey("ApplicationUserId");
 
-                    b.HasOne("Moodle_v1.Models.Rank", "Rank")
-                        .WithMany()
-                        .HasForeignKey("RankId");
-
                     b.Navigation("ApplicationUser");
-
-                    b.Navigation("Rank");
                 });
 
             modelBuilder.Entity("Moodle_v1.Models.Student", b =>
@@ -604,6 +604,17 @@ namespace Moodle_v1.Migrations
                     b.Navigation("ApplicationUser");
 
                     b.Navigation("Domain");
+                });
+
+            modelBuilder.Entity("Notification", b =>
+                {
+                    b.HasOne("Moodle_v1.Models.Announcement", "Announcement")
+                        .WithMany()
+                        .HasForeignKey("AnnouncementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Announcement");
                 });
 
             modelBuilder.Entity("Secretary", b =>

@@ -159,7 +159,6 @@ using (var scope = app.Services.CreateScope())
             {
                 ApplicationUserId = user.Id,
                 HireDate = DateTime.Now,
-                Rank = null
             };
 
             context.Professors.Add(prof);

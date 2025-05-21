@@ -6,6 +6,13 @@
 
 <h1>Add Course</h1>
 
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @Html.ValidationSummary()
+    </div>
+}
+
 <form asp-action="AddCourse" method="post">
     <div class="form-group">
         <label asp-for="Title"></label>
