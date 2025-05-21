@@ -7,6 +7,43 @@
 
 <h2>@Model.Title</h2>
 <p>Credits: @Model.NoCredits</p>
+<p>
+    <strong>Main Professor:</strong>
+    @if (Model.Main?.ApplicationUser != null)
+    {
+        @($"{Model.Main.ApplicationUser.FirstName} {Model.Main.ApplicationUser.LastName}")
+    }
+    else
+    {
+        <span>-</span>
+    }
+</p>
+<p>
+    <strong>Assistant Professor:</strong>
+    @if (Model.Assistant?.ApplicationUser != null)
+    {
+        @($"{Model.Assistant.ApplicationUser.FirstName} {Model.Assistant.ApplicationUser.LastName}")
+    }
+    else
+    {
+        <span>-</span>
+    }
+</p>
+
+@if (User.IsInRole("Student"))
+{
+    <p>
+        <strong>Your Grade:</strong>
+        @if (ViewBag.Grade != null)
+        {
+            @ViewBag.Grade
+        }
+        else
+        {
+            <span>Not graded yet</span>
+        }
+    </p>
+}
 
 @if (Model.Announcements != null && Model.Announcements.Any())
 {
@@ -27,21 +64,6 @@ else
     <p>No announcements for this course.</p>
 }
 
-
-@if (User.IsInRole("Student"))
-{
-    <p>
-        <strong>Your Grade:</strong>
-        @if (ViewBag.Grade != null)
-        {
-            @ViewBag.Grade
-        }
-        else
-        {
-            <span>Not graded yet</span>
-        }
-    </p>
-}
 
 @if (User.IsInRole("Profesor") &&
    ((Model.Main != null && Model.Main.ApplicationUserId == UserManager.GetUserId(User)) ||

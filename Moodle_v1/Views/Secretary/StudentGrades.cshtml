@@ -1,0 +1,28 @@
+﻿@model IEnumerable<Student>
+
+<h2>Student Grades</h2>
+
+<a asp-action="ExportStudentGradesPdf" class="btn btn-secondary" target="_blank">Export as PDF</a>
+
+@foreach (var student in Model)
+{
+    <h4>@student.ApplicationUser.FirstName @student.ApplicationUser.LastName</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Course</th>
+                <th>Grade</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cs in student.CoursesStudents)
+            {
+                <tr>
+                    <td>@cs.Course.Title</td>
+                    <td>@(cs.Grade.HasValue ? cs.Grade.ToString() : "Not graded")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+

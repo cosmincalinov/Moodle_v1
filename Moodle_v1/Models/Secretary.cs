@@ -1,8 +1,10 @@
-﻿namespace Moodle_v1.Models
+﻿using System.ComponentModel.DataAnnotations;
+using Moodle_v1.Areas.Identity.Data;
+
+public class Secretary
 {
-    public class Secretary
-    {
-        public int Id { get; set; }
-        public Domain? Domain { get; set; }
-    }
+    [Key]
+    public int Id { get; set; }
+    public string? ApplicationUserId { get; set; }
+    public ApplicationUser? ApplicationUser { get; set; }
 }

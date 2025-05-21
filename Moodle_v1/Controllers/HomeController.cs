@@ -36,7 +36,11 @@ public class HomeController : Controller
 
         if (User.IsInRole("Student"))
         {
-            courses = _context.Courses.ToList();
+            courses = _context.Courses
+                .Include(c => c.Main).ThenInclude(p => p.ApplicationUser)
+                .Include(c => c.Assistant).ThenInclude(p => p.ApplicationUser)
+                .ToList();
+
         }
         else if (User.IsInRole("Profesor"))
         {
@@ -69,6 +73,10 @@ public class HomeController : Controller
         var student = await _context.Students
             .Include(s => s.CoursesStudents)
             .ThenInclude(cs => cs.Course)
+                .ThenInclude(c => c.Main).ThenInclude(p => p.ApplicationUser)
+            .Include(s => s.CoursesStudents)
+            .ThenInclude(cs => cs.Course)
+                .ThenInclude(c => c.Assistant).ThenInclude(p => p.ApplicationUser)
             .FirstOrDefaultAsync(s => s.ApplicationUserId == userId);
 
         if (student == null)
@@ -87,6 +95,7 @@ public class HomeController : Controller
 
         return View("Index", courses.ToList());
     }
+
 
     public IActionResult CoursePage(int id)
     {
@@ -310,6 +319,16 @@ public class HomeController : Controller
                         Rank = null
                     };
                     _context.Professors.Add(professor);
+                    await _context.SaveChangesAsync();
+                }
+
+                if (role == "Secretar" && !_context.Secretaries.Any(s => s.ApplicationUserId == user.Id))
+                {
+                    var secretary = new Secretary
+                    {
+                        ApplicationUserId = user.Id
+                    };
+                    _context.Secretaries.Add(secretary);
                     await _context.SaveChangesAsync();
                 }
 

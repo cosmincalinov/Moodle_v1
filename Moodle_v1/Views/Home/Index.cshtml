@@ -28,6 +28,8 @@
 @if(User.IsInRole("Secretar"))
 {
     <h1>Hi, Secretar!</h1>
+    <a asp-controller="Secretary" asp-action="StudentGrades" class="btn btn-primary">View All Student Grades</a>
+
 }
 
 @if (User.IsInRole("Student"))
@@ -47,6 +49,28 @@
             <p>
                 Credits: @course.NoCredits
             </p>
+            <p>
+                Main Professor:
+                @if (course.Main?.ApplicationUser != null)
+                {
+                    @($"{course.Main.ApplicationUser.FirstName} {course.Main.ApplicationUser.LastName}")
+                }
+                else
+                {
+                    <span>-</span>
+                }
+            </p>
+            <p>
+                Assistant Professor:
+                @if (course.Assistant?.ApplicationUser != null)
+                {
+                    @($"{course.Assistant.ApplicationUser.FirstName} {course.Assistant.ApplicationUser.LastName}")
+                }
+                else
+                {
+                    <span>-</span>
+                }
+            </p>
         </section>
     }
 }
@@ -63,6 +87,28 @@
                 <a asp-area="" asp-controller="Home" asp-action="CoursePage" asp-route-id="@course.Id">@course.Title</a>
                 <p>
                     Credits: @course.NoCredits
+                </p>
+                <p>
+                    Main Professor:
+                    @if (course.Main?.ApplicationUser != null)
+                    {
+                        @($"{course.Main.ApplicationUser.FirstName} {course.Main.ApplicationUser.LastName}")
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </p>
+                <p>
+                    Assistant Professor:
+                    @if (course.Assistant?.ApplicationUser != null)
+                    {
+                        @($"{course.Assistant.ApplicationUser.FirstName} {course.Assistant.ApplicationUser.LastName}")
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
                 </p>
             </section>
         }
