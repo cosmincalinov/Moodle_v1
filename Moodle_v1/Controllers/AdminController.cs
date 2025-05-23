@@ -77,17 +77,19 @@ public class AdminController : Controller
     }
 
 
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AssignTeachers()
     {
         var viewModel = new AssignTeachersViewModel
         {
-            Courses = await _context.Courses.ToListAsync(),
+            Courses = await _context.Courses
+                .Where(c => c.MainId == null || c.AssistantId == null)
+                .ToListAsync(),
             Professors = await _context.Professors.Include(s => s.ApplicationUser).ToListAsync()
         };
 
         return View(viewModel);
     }
+    
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
