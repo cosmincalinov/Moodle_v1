@@ -30,146 +30,103 @@ public class HomeController : Controller
         _roleManager = roleManager;
     }
 
-    public IActionResult Index()
+    public IActionResult Index(string searchString, string sortOrder)
     {
         ViewData["UserID"] = _userManager.GetUserId(this.User);
+        ViewBag.StudentId = _userManager.GetUserId(this.User);
+
+        IQueryable<Course> courseQuery = _context.Courses
+            .Include(c => c.Main).ThenInclude(p => p.ApplicationUser)
+            .Include(c => c.Assistant).ThenInclude(p => p.ApplicationUser);
 
         if (User.IsInRole("Student"))
         {
             var userId = _userManager.GetUserId(this.User);
 
-            // Load unread alerts (e.g., added to course, grade updated)
             var alerts = _context.Alerts
                 .Where(a => a.StudentUserId == userId && !a.IsRead)
                 .OrderByDescending(a => a.CreatedAt)
                 .ToList();
+            foreach (var alert in alerts)
+            {
+                alert.IsRead = true;
+            }
             ViewBag.Alerts = alerts;
 
-            // Load unread announcement notifications
             var notifications = _context.Notifications
                 .Include(n => n.Announcement)
                 .Where(n => n.StudentUserId == userId && !n.IsRead)
                 .OrderByDescending(n => n.CreatedAt)
                 .ToList();
+            foreach (var notification in notifications)
+            {
+                notification.IsRead = true;
+            }
             ViewBag.Notifications = notifications;
 
-            // Load courses for the student
-            courses = _context.Courses
-                .Include(c => c.Main).ThenInclude(p => p.ApplicationUser)
-                .Include(c => c.Assistant).ThenInclude(p => p.ApplicationUser)
-                .ToList();
+            _context.SaveChanges();
+
+            var student = _context.Students
+                .Include(s => s.CoursesStudents)
+                    .ThenInclude(cs => cs.Course)
+                        .ThenInclude(c => c.Main).ThenInclude(p => p.ApplicationUser)
+                .Include(s => s.CoursesStudents)
+                    .ThenInclude(cs => cs.Course)
+                        .ThenInclude(c => c.Assistant).ThenInclude(p => p.ApplicationUser)
+                .FirstOrDefault(s => s.ApplicationUserId == userId);
+
+            if (student != null)
+            {
+                courseQuery = student.CoursesStudents
+                    .Select(cs => cs.Course)
+                    .AsQueryable()
+                    .Distinct();
+            }
+            else
+            {
+                courseQuery = Enumerable.Empty<Course>().AsQueryable();
+            }
         }
-        else if (User.IsInRole("Profesor") || User.IsInRole("Secretar"))
+        else if (User.IsInRole("Profesor"))
         {
             var userId = _userManager.GetUserId(this.User);
-
-            var chatNotifications = _context.ChatNotifications
-                .Include(n => n.ChatMessage)
-                .ThenInclude(m => m.Sender)
-                .Where(n => n.UserId == userId && !n.IsRead)
-                .OrderByDescending(n => n.CreatedAt)
-                .ToList();
-
-            ViewBag.ChatNotifications = chatNotifications;
-
-            if (User.IsInRole("Profesor"))
+            var professor = _context.Professors.FirstOrDefault(p => p.ApplicationUserId == userId);
+            if (professor != null)
             {
-                var professor = _context.Professors.FirstOrDefault(p => p.ApplicationUserId == userId);
-                if (professor != null)
-                {
-                    courses = _context.Courses
-                        .Where(c => c.MainId == professor.Id || c.AssistantId == professor.Id)
-                        .Include(c => c.Main).ThenInclude(p => p.ApplicationUser)
-                        .Include(c => c.Assistant).ThenInclude(p => p.ApplicationUser)
-                        .ToList();
-                }
-                else
-                {
-                    courses = new List<Course>();
-                }
+                courseQuery = courseQuery.Where(c => c.MainId == professor.Id || c.AssistantId == professor.Id);
             }
-            else // Secretar
+            else
             {
-                courses = _context.Courses
-                    .Include(c => c.Main).ThenInclude(p => p.ApplicationUser)
-                    .Include(c => c.Assistant).ThenInclude(p => p.ApplicationUser)
-                    .ToList();
+                courseQuery = Enumerable.Empty<Course>().AsQueryable();
             }
         }
-        else
+
+        if (!string.IsNullOrWhiteSpace(searchString))
         {
-            courses = _context.Courses
-                .Include(c => c.Main).ThenInclude(p => p.ApplicationUser)
-                .Include(c => c.Assistant).ThenInclude(p => p.ApplicationUser)
-                .ToList();
+            var loweredSearch = searchString.ToLower();
+
+            courseQuery = courseQuery.Where(c =>
+                c.Title.ToLower().Contains(loweredSearch) ||
+                (c.Main != null && c.Main.ApplicationUser != null &&
+                    (c.Main.ApplicationUser.FirstName + " " + c.Main.ApplicationUser.LastName).ToLower().Contains(loweredSearch)) ||
+                (c.Assistant != null && c.Assistant.ApplicationUser != null &&
+                    (c.Assistant.ApplicationUser.FirstName + " " + c.Assistant.ApplicationUser.LastName).ToLower().Contains(loweredSearch))
+            );
         }
+
+        ViewData["CurrentSort"] = sortOrder == "desc" ? "asc" : "desc";
+        if (sortOrder == "desc")
+            courseQuery = courseQuery.OrderByDescending(c => c.Title);
+        else
+            courseQuery = courseQuery.OrderBy(c => c.Title);
+
+        courses = courseQuery
+            .Include(c => c.Main).ThenInclude(p => p.ApplicationUser)
+            .Include(c => c.Assistant).ThenInclude(p => p.ApplicationUser)
+            .ToList();
 
         return View(courses);
     }
-
-    public async Task<IActionResult> IndexSorted(string sortOrder)
-    {
-        ViewData["UserID"] = _userManager.GetUserId(this.User);
-
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var student = await _context.Students
-            .Include(s => s.CoursesStudents)
-            .ThenInclude(cs => cs.Course)
-                .ThenInclude(c => c.Main).ThenInclude(p => p.ApplicationUser)
-            .Include(s => s.CoursesStudents)
-            .ThenInclude(cs => cs.Course)
-                .ThenInclude(c => c.Assistant).ThenInclude(p => p.ApplicationUser)
-            .FirstOrDefaultAsync(s => s.ApplicationUserId == userId);
-
-        if (student == null)
-        {
-            return NotFound();
-        }
-
-        var courses = student.CoursesStudents
-            .Select(cs => cs.Course);
-
-        courses = sortOrder == "desc"
-            ? courses.OrderByDescending(c => c.Title)
-            : courses.OrderBy(c => c.Title);
-
-        ViewData["CurrentSort"] = sortOrder == "desc" ? "asc" : "desc";
-
-        return View("Index", courses.ToList());
-    }
-
-
-    public IActionResult CoursePage(int id)
-    {
-        var course = _context.Courses
-            .Include(c => c.Main)
-            .Include(c => c.Assistant)
-            .Include(c => c.Announcements)
-                .ThenInclude(a => a.Professor)
-                    .ThenInclude(p => p.ApplicationUser)
-            .FirstOrDefault(c => c.Id == id);
-
-        if (course == null)
-        {
-            return NotFound();
-        }
-
-        if (User.IsInRole("Student"))
-        {
-            var userId = _userManager.GetUserId(User);
-            var student = _context.Students.FirstOrDefault(s => s.ApplicationUserId == userId);
-            if (student != null)
-            {
-                var courseStudent = _context.CourseStudents
-                    .FirstOrDefault(cs => cs.CourseId == id && cs.StudentId == student.NrMatricol);
-
-                ViewBag.Grade = courseStudent?.Grade;
-            }
-        }
-
-        return View("CoursePage", course);
-    }
-
 
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AssignStudents()

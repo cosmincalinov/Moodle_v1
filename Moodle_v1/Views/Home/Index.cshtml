@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Home Page";
+    var studentId = ViewData["UserID"] as string;
 }
 
 @using Microsoft.AspNetCore.Identity
@@ -10,11 +11,10 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>User Id : @ViewData["UserID"]</p>
-</div>
+<form asp-action="Index" method="get" class="form-inline mb-3">
+    <input type="text" name="searchString" value="@Context.Request.Query["searchString"]" class="form-control mr-2" placeholder="Search by course or professor" />
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
 
 @if ((User.IsInRole("Profesor") || User.IsInRole("Secretar")) && ViewBag.ChatNotifications != null && ((List<ChatNotification>)ViewBag.ChatNotifications).Any())
 {
@@ -126,41 +126,62 @@
     }
 
     <div>
-        <a asp-action="IndexSorted" asp-route-sortOrder="@ViewData["CurrentSort"]" class="btn btn-primary">
+        <a asp-action="Index"
+           asp-route-sortOrder="@ViewData["CurrentSort"]"
+           asp-route-searchString="@Context.Request.Query["searchString"]"
+           class="btn btn-primary">
             Sort by Name (@(ViewData["CurrentSort"] == "asc" ? "Ascending" : "Descending"))
         </a>
     </div>
-    
-    @foreach (var course in Model)
+
+    @foreach (var yearGroup in Model.GroupBy(c => c.Year).OrderBy(g => g.Key))
     {
-        <section id="news" class="mybox">
-            <a asp-area="" asp-controller="Home" asp-action="CoursePage" asp-route-id="@course.Id">@course.Title</a>
-            <p>
-                Credits: @course.NoCredits
-            </p>
-            <p>
-                Main Professor:
-                @if (course.Main?.ApplicationUser != null)
-                {
-                    @($"{course.Main.ApplicationUser.FirstName} {course.Main.ApplicationUser.LastName}")
-                }
-                else
-                {
-                    <span>-</span>
-                }
-            </p>
-            <p>
-                Assistant Professor:
-                @if (course.Assistant?.ApplicationUser != null)
-                {
-                    @($"{course.Assistant.ApplicationUser.FirstName} {course.Assistant.ApplicationUser.LastName}")
-                }
-                else
-                {
-                    <span>-</span>
-                }
-            </p>
-        </section>
+        var grades = yearGroup
+            .SelectMany(c => c.CoursesStudents ?? new List<CourseStudent>())
+            .Where(cs => cs.Student != null && cs.Student.ApplicationUserId == studentId && cs.Grade.HasValue)
+            .Select(cs => cs.Grade.Value)
+            .ToList();
+
+        double? meanGrade = grades.Any() ? grades.Average() : (double?)null;
+
+        <h3>
+            Year @yearGroup.Key
+            @if (meanGrade.HasValue)
+            {
+                <span style="font-size:1rem; color:#007bff;">(Mean grade: @meanGrade.Value.ToString("0.00"))</span>
+            }
+        </h3>
+        foreach (var course in yearGroup)
+        {
+            <section id="news" class="mybox">
+                <a asp-area="" asp-controller="Home" asp-action="CoursePage" asp-route-id="@course.Id">@course.Title</a>
+                <p>
+                    Credits: @course.NoCredits
+                </p>
+                <p>
+                    Main Professor:
+                    @if (course.Main?.ApplicationUser != null)
+                    {
+                        @($"{course.Main.ApplicationUser.FirstName} {course.Main.ApplicationUser.LastName}")
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </p>
+                <p>
+                    Assistant Professor:
+                    @if (course.Assistant?.ApplicationUser != null)
+                    {
+                        @($"{course.Assistant.ApplicationUser.FirstName} {course.Assistant.ApplicationUser.LastName}")
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </p>
+            </section>
+        }
     }
 }
 

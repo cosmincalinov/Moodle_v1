@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using Moodle_v1.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
 public class Alert
 {
