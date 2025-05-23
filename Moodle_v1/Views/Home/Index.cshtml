@@ -39,10 +39,10 @@
 @if (User.IsInRole("Admin"))
 {
     <h1>Hi, Admin!</h1>
-    <a asp-action="AssignStudents" class="btn btn-primary">Assign Students to Course</a>
-    <a asp-action="AssignTeachers" class="btn btn-primary">Assign Teachers to Course</a>
-    <a asp-action="AddCourse" class="btn btn-primary">Create Course</a>
-    <a asp-action="AssignRole" class="btn btn-primary">Assign Role to User</a>
+    <a asp-controller="Admin" asp-action="AssignStudents" class="btn btn-primary">Assign Students to Course</a>
+    <a asp-controller="Admin" asp-action="AssignTeachers" class="btn btn-primary">Assign Teachers to Course</a>
+    <a asp-controller="Admin" asp-action="AddCourse" class="btn btn-primary">Create Course</a>
+    <a asp-controller="Admin" asp-action="AssignRole" class="btn btn-primary">Assign Role to User</a>
 
     <table class="table mt-4">
         <thead>
@@ -73,8 +73,8 @@
                         }
                     </td>
                     <td>
-                        <a asp-action="EditCourse" asp-route-id="@course.Id" class="btn btn-warning btn-sm">Edit</a>
-                        <a asp-action="DeleteCourse" asp-route-id="@course.Id" class="btn btn-danger btn-sm"
+                        <a asp-controller="Admin" asp-action="EditCourse" asp-route-id="@course.Id" class="btn btn-warning btn-sm">Edit</a>
+                        <a asp-controller="Admin" asp-action="DeleteCourse" asp-route-id="@course.Id" class="btn btn-danger btn-sm"
                            onclick="return confirm('Are you sure you want to delete this course?');">Delete</a>
                     </td>
                 </tr>
