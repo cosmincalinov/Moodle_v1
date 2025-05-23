@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Moodle_v1.Areas.Identity.Data;
+﻿using Moodle_v1.Areas.Identity.Data;
 using System.ComponentModel.DataAnnotations;
 
 namespace Moodle_v1.Models

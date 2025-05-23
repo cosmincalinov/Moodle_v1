@@ -11,10 +11,13 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
-<form asp-action="Index" method="get" class="form-inline mb-3">
-    <input type="text" name="searchString" value="@Context.Request.Query["searchString"]" class="form-control mr-2" placeholder="Search by course or professor" />
-    <button type="submit" class="btn btn-primary">Search</button>
-</form>
+@if (!User.IsInRole("Secretar"))
+{
+    <form asp-action="Index" method="get" class="form-inline mb-3">
+        <input type="text" name="searchString" value="@Context.Request.Query["searchString"]" class="form-control mr-2" placeholder="Search by course or professor" />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+}
 
 @if ((User.IsInRole("Profesor") || User.IsInRole("Secretar")) && ViewBag.ChatNotifications != null && ((List<ChatNotification>)ViewBag.ChatNotifications).Any())
 {

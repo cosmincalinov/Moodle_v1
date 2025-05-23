@@ -7,10 +7,6 @@ using Moodle_v1.Data;
 using Moodle_v1.Models;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Pdf;
-using PdfSharpCore.Drawing;
-using PdfSharpCore.Pdf;
-using System.IO;
-
 namespace Moodle_v1.Controllers
 {
     public class SecretaryController : Controller
@@ -73,7 +69,6 @@ namespace Moodle_v1.Controllers
             gfx.DrawString($"{student.ApplicationUser.FirstName} {student.ApplicationUser.LastName}", headerFont, XBrushes.Black, 40, y);
             y += 25;
 
-            // Table header
             gfx.DrawRectangle(XPens.Black, XBrushes.LightGray, 40, y, 300, 20);
             gfx.DrawString("Course", headerFont, XBrushes.Black, 45, y + 15);
             gfx.DrawString("Grade", headerFont, XBrushes.Black, 220, y + 15);

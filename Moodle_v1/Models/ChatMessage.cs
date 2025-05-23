@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Moodle_v1.Areas.Identity.Data;
 
 public class ChatMessage

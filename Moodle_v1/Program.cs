@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Moodle_v1.Areas.Identity.Data;
 using Moodle_v1.Data;
 using Moodle_v1.Models;
-using Rotativa.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("AuthDbContextConnection") ?? throw new InvalidOperationException("Connection string 'AuthDbContextConnection' not found.");
 
