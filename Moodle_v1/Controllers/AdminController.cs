@@ -68,7 +68,7 @@ public class AdminController : Controller
                 }
             }
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Home");
         }
 
         model.Courses = await _context.Courses.ToListAsync();
@@ -114,7 +114,7 @@ public class AdminController : Controller
                 : null;
 
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Home");
         }
 
         model.Courses = await _context.Courses.ToListAsync();
@@ -145,7 +145,7 @@ public class AdminController : Controller
         {
             _context.Courses.Add(course);
             _context.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Home");
         }
         ViewBag.Professors = _context.Professors
             .Include(p => p.ApplicationUser)
@@ -241,7 +241,7 @@ public class AdminController : Controller
                     await _context.SaveChangesAsync();
                 }
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", "Home");
             }
         }
 
@@ -292,7 +292,7 @@ public class AdminController : Controller
         {
             _context.Courses.Update(course);
             _context.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Home");
         }
         ViewBag.Professors = _context.Professors
             .Include(p => p.ApplicationUser)
@@ -313,6 +313,8 @@ public class AdminController : Controller
             _context.Courses.Remove(course);
             _context.SaveChanges();
         }
-        return RedirectToAction("Index");
+        return RedirectToAction("Index", "Home");
     }
+
+
 }

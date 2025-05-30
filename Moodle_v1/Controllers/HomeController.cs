@@ -138,4 +138,35 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+
+    public IActionResult CoursePage(int id)
+    {
+        var course = _context.Courses
+            .Include(c => c.Main)
+            .Include(c => c.Assistant)
+            .Include(c => c.Announcements)
+                .ThenInclude(a => a.Professor)
+                    .ThenInclude(p => p.ApplicationUser)
+            .FirstOrDefault(c => c.Id == id);
+
+        if (course == null)
+        {
+            return NotFound();
+        }
+
+        if (User.IsInRole("Student"))
+        {
+            var userId = _userManager.GetUserId(User);
+            var student = _context.Students.FirstOrDefault(s => s.ApplicationUserId == userId);
+            if (student != null)
+            {
+                var courseStudent = _context.CourseStudents
+                    .FirstOrDefault(cs => cs.CourseId == id && cs.StudentId == student.NrMatricol);
+
+                ViewBag.Grade = courseStudent?.Grade;
+            }
+        }
+
+        return View("CoursePage", course);
+    }
 }

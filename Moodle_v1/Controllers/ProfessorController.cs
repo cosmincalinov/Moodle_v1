@@ -161,8 +161,5 @@ namespace Moodle_v1.Controllers
 
             return RedirectToAction("CoursePage", "Home", new { id = courseId });
         }
-
-
-
     }
 }
