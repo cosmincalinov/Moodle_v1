@@ -22,7 +22,7 @@ body {
     font-family: Roboto,sans-serif;
 }
 
-/*tab navigation*/
+tab navigation
 .login-logout-card .card-header {
     padding: 0px 0px 12px 0px;
 }
@@ -31,9 +31,9 @@ body {
     margin: 0px 0px -12px 0px;
 }
 
-.login-logout-card li.nav-item {
+/*.login-logout-card li.nav-item {
     width: 50%;
-}
+}*/
 
 .login-logout-card a.nav-link {
     font-size: 1rem;
@@ -44,4 +44,219 @@ body {
 
 .login-logout-card .card-body {
     padding: 10px 20px;
+}
+
+/* Top Navbar Styling */
+.navbar {
+    background-color: #0A2463 !important;
+    border-bottom: 3px solid #6883BA;
+    box-shadow: 0 2px 8px rgba(10,36,99,0.08);
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+    .navbar .navbar-brand {
+        color: #FFFFFF !important;
+        font-weight: 700;
+        font-size: 1.7rem;
+        letter-spacing: 1px;
+        transition: color 0.2s;
+    }
+
+        .navbar .navbar-brand:hover,
+        .navbar .navbar-brand:focus {
+            color: #fff !important;
+            text-decoration: none;
+        }
+
+    .navbar .nav-link,
+    .navbar .navbar-nav .nav-link {
+        color: #fff !important;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+        .navbar .nav-link:hover,
+        .navbar .navbar-nav .nav-link.active {
+            color: #FFFFFF !important;
+        }
+
+/* Footer Styling */
+footer.footer {
+    background-color: #0A2463;
+    color: #fff;
+    border-top: 3px solid #6883BA;
+    box-shadow: 0 -2px 8px rgba(10,36,99,0.08);
+    padding: 0.6rem 0;
+    font-size: 1rem;
+}
+
+    footer.footer .container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+    }
+
+    footer.footer .names {
+        color: #FFFFFF;
+        font-weight: 500;
+        margin-left: 0.5em;
+    }
+
+@media (max-width: 576px) {
+    footer.footer .container {
+        font-size: 0.95rem;
+        padding: 0 0.5em;
+    }
+}
+
+/* Navbar layout improvements */
+.navbar .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar .navbar-brand {
+    margin-right: 2rem;
+}
+
+.navbar .navbar-collapse {
+    flex-grow: 0;
+}
+
+.navbar .user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+    .navbar .user-info .user-email {
+        color: #fff;
+        font-weight: 500;
+        margin-right: 0.5rem;
+    }
+
+    .navbar .user-info .btn-logout {
+        background: #F17300;
+        color: #fff;
+        border: none;
+        padding: 0.3em 1em;
+        border-radius: 0.5em;
+        font-weight: 500;
+        transition: background 0.2s;
+    }
+
+        .navbar .user-info .btn-logout:hover {
+            background: #6883BA;
+            color: #fff;
+        }
+
+
+/* Course/News Card Styling */
+.mybox {
+    background: #fff;
+    border: 2px solid #6883BA;
+    border-radius: 1em;
+    box-shadow: 0 2px 12px rgba(10,36,99,0.07);
+    padding: 1.2em 1.5em;
+    margin-bottom: 1.5em;
+    transition: box-shadow 0.2s;
+}
+
+    .mybox:hover {
+        box-shadow: 0 4px 24px rgba(10,36,99,0.13);
+        border-color: #0A2463;
+    }
+
+    .mybox a {
+        color: #0A2463;
+        font-weight: 600;
+        font-size: 1.1em;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+        .mybox a:hover {
+            color: #F17300;
+            text-decoration: underline;
+        }
+
+    .mybox p {
+        margin-bottom: 0.3em;
+        color: #222;
+    }
+
+h1, h3 {
+    color: #0A2463;
+    margin-top: 1.5em;
+    margin-bottom: 0.7em;
+    
+}
+
+h3 {
+    text-align: left !important;
+}
+
+.alert-info {
+    background: #6883BA !important;
+    color: #fff !important;
+    border: none;
+    border-radius: 0.7em;
+    box-shadow: 0 1px 6px rgba(10,36,99,0.07);
+}
+
+    .alert-info strong {
+        color: #F17300;
+    }
+
+.btn-primary, .btn-info {
+    background: #0A2463 !important;
+    border: none;
+    color: #fff !important;
+    font-weight: 500;
+    border-radius: 0.5em;
+    transition: background 0.2s;
+    margin-bottom: 0.5em;
+}
+
+    .btn-primary:hover, .btn-info:hover {
+        background: #6883BA !important;
+        color: #fff !important;
+    }
+
+
+#manage {
+    display: none;
+}
+
+.btn-warning {
+    background-color: #F17300;
+    color: black;
+}
+
+.btn-danger {
+    background-color: #960200;
+    color: white;
+}
+
+.coursesbox {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+/*    flex-wrap: wrap;*/
+}
+
+.mybox {
+    width: 25%;
+    margin-bottom: 2em;
+    margin-right: 1em;
+    min-height: 250px;
+    max-height: 500px;
+}
+
+.mybox a {
+    text-decoration: underline;
 }

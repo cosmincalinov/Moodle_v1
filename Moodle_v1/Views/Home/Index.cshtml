@@ -29,7 +29,7 @@
                 <li>
                     From: @notification.ChatMessage.Sender.FirstName @notification.ChatMessage.Sender.LastName<br />
                     "@notification.ChatMessage.Message"
-                    <span style="color:gray; font-size:smaller;">(@notification.CreatedAt.ToString("g"))</span>
+                    <span style="color: white; font-size:smaller;">(@notification.CreatedAt.ToString("g"))</span>
                 </li>
             }
         </ul>
@@ -154,9 +154,10 @@
                 <span style="font-size:1rem; color:#007bff;">(Mean grade: @meanGrade.Value.ToString("0.00"))</span>
             }
         </h3>
-        foreach (var course in yearGroup)
+        <div class="coursesbox">
+        @foreach (var course in yearGroup)
         {
-            <section id="news" class="mybox">
+            <section class="mybox">
                 <a asp-area="" asp-controller="Home" asp-action="CoursePage" asp-route-id="@course.Id">@course.Title</a>
                 <p>
                     Credits: @course.NoCredits
@@ -185,6 +186,7 @@
                 </p>
             </section>
         }
+        </div>
     }
 }
 
@@ -196,6 +198,7 @@
 
     @if (Model != null && Model.Any())
     {
+        <div class="coursesbox">
         @foreach (var course in Model)
         {
             <section id="news" class="mybox">
@@ -227,6 +230,7 @@
                 </p>
             </section>
         }
+        </div>
     }
     else
     {
