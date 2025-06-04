@@ -7,7 +7,7 @@
 
 <h2>@Model.Title</h2>
 <p>Credits: @Model.NoCredits</p>
-<p>
+@* <p>
     <strong>Main Professor:</strong>
     @if (Model.Main?.ApplicationUser != null)
     {
@@ -28,7 +28,7 @@
     {
         <span>-</span>
     }
-</p>
+</p> *@
 
 @if (User.IsInRole("Student"))
 {
@@ -47,9 +47,10 @@
 
 @if (Model.Announcements != null && Model.Announcements.Any())
 {
+    <h3>Announcements:</h3>
     foreach (var announcement in Model.Announcements.OrderByDescending(a => a.PostedAt))
     {
-        <div>
+        <div class="announcement">
             <h4>@announcement.Title</h4>
             <p>
                 By @announcement.Professor.ApplicationUser.FirstName @announcement.Professor.ApplicationUser.LastName

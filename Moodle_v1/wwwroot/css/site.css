@@ -190,7 +190,7 @@ footer.footer {
 
 h1, h3 {
     color: #0A2463;
-    margin-top: 1.5em;
+/*    margin-top: 1.5em;*/
     margin-bottom: 0.7em;
     
 }
@@ -259,4 +259,44 @@ h3 {
 
 .mybox a {
     text-decoration: underline;
+}
+
+.admin-search {
+    width: 75%;
+/*    display: inline-block;*/
+}
+
+.admin-search-btn {
+    width: 15%;
+/*    display: inline-block;*/
+}
+
+.admin-search-form {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.table {
+    margin-bottom: 3em;
+}
+
+.chat {
+    width: 60%;
+    margin: auto;
+    max-height: 350px;
+    overflow: scroll;
+}
+
+#logout:active, #logout:focus {
+    width: 100% !important;
+    color: darkorange !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.announcement {
+    border-bottom: 3px solid black;
+    margin-bottom: 3em;
 }

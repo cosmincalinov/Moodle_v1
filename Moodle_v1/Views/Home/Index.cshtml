@@ -13,9 +13,9 @@
 
 @if (!User.IsInRole("Secretar"))
 {
-    <form asp-action="Index" method="get" class="form-inline mb-3">
-        <input type="text" name="searchString" value="@Context.Request.Query["searchString"]" class="form-control mr-2" placeholder="Search by course or professor" />
-        <button type="submit" class="btn btn-primary">Search</button>
+    <form asp-action="Index" method="get" class="form-inline mb-3 admin-search-form">
+        <input type="text" name="searchString" value="@Context.Request.Query["searchString"]" class="form-control mr-2 admin-search" placeholder="Search by course or professor" />
+        <button type="submit" class="btn btn-primary admin-search-btn">Search</button>
     </form>
 }
 
